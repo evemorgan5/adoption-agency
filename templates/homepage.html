@@ -4,13 +4,13 @@
 
 {% block content %}
 
+<h1>Adopt a Pet</h1>
+
   {% for pet in pets %}
-    {% if pet.available %}
     <span>
         <img height="250px" width="250px" src="{{ pet.photo_url }}">
-        <p> <a href="/{{ pet.id }}">{{ pet.name }}</a> <b> is Available!</b> </p>
+        <p> <a href="/{{ pet.id }}">{{ pet.name }}</a> {% if pet.available %} <b> is Available!</b> {% endif %} </p>
     </span> 
-    {% endif %}
   {% endfor %}
 
 <form action="/add">

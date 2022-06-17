@@ -1,5 +1,5 @@
 from flask import Flask, redirect, render_template
-from models import Pet, db, connect_db
+from models import Pet, db, connect_db, DEFAULT_IMAGE_URL
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import AddPetForm, EditPetForm
 
@@ -45,6 +45,7 @@ def add_pet():
         name = form.name.data
         species = form.species.data
         photo_url = form.photo_url.data
+        photo_url = str(photo_url) if photo_url else None
         age = form.age.data
         notes = form.notes.data
 
@@ -80,8 +81,10 @@ def edit_pet(id):
         pet.name = form.name.data
         pet.species = form.species.data
         pet.photo_url = form.photo_url.data
+        pet.photo_url = str(pet.photo_url) if pet.photo_url else DEFAULT_IMAGE_URL
         pet.age = form.age.data
         pet.notes = form.notes.data
+        pet.available = form.available.data
 
         db.session.commit()
         return redirect("/")
