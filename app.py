@@ -1,7 +1,6 @@
 from flask import Flask, redirect, render_template
 from models import Pet, db, connect_db
 from flask_debugtoolbar import DebugToolbarExtension
-
 from forms import AddPetForm, EditPetForm
 
 
@@ -22,15 +21,24 @@ connect_db(app)
 db.create_all()
 
 
-
 @app.get("/")
 def homepage():
-    """returns homepage"""
+    """Takes user to homepage
+        - Shows the list of available pets
+    """
+
     pets = Pet.query.all()
     return render_template("homepage.html", pets=pets)
 
+
 @app.route("/add", methods=["GET", "POST"])
 def add_pet():
+    """ For GET request
+        - Shows the form fields to add a pet
+        For POST request
+        - Saves the pet into the database 
+    """
+
     form = AddPetForm()
 
     if form.validate_on_submit():
@@ -39,7 +47,14 @@ def add_pet():
         photo_url = form.photo_url.data
         age = form.age.data
         notes = form.notes.data
-        pet = Pet(name=name, species=species, photo_url=photo_url, age=age, notes=notes)
+
+        pet = Pet(
+            name=name, 
+            species=species, 
+            photo_url=photo_url, 
+            age=age, 
+            notes=notes
+        )
 
         db.session.add(pet)
         db.session.commit()
@@ -51,6 +66,13 @@ def add_pet():
 
 @app.route("/<int:id>", methods=["GET", "POST"])
 def edit_pet(id):
+    """ For GET request, 
+        - Gets pet instance based on pet id
+        - Shows form fields to edit a pet
+        For POST request,
+        - Updates and saves the pet in the database
+    """
+
     pet = Pet.query.get_or_404(id)
     form = EditPetForm(obj = pet)
 
