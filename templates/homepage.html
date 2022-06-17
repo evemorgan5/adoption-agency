@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %} Homepage {% endblock title %}
+
+{% block content %}
+
+<ul>
+  {% for pet in pets %}
+    {% if pet.available %}
+      <li>{{pet.photo_url}} <a href="/{{pet.id}}">{{pet.name}}</a><b> is Available!</b></li>
+    {% endif %}
+  {% endfor %}
+</ul>
+<form action="/add">
+  <button type="submit">Add a Pet</button>
+</form>
+{% endblock content%}
