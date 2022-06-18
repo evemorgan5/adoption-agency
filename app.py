@@ -1,8 +1,14 @@
 from flask import Flask, redirect, render_template
+import requests
 from models import Pet, db, connect_db, DEFAULT_IMAGE_URL
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import AddPetForm, EditPetForm
+import os
 
+PET_FINDER_API_KEY=os.environ['PET_FINDER_API_KEY']
+PET_FINDER_SECRET_KEY=os.environ['PET_FINDER_SECRET_KEY']
+
+auth_token = None
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///adopt'
@@ -36,7 +42,7 @@ def add_pet():
     """ For GET request
         - Shows the form fields to add a pet
         For POST request
-        - Saves the pet into the database 
+        - Saves the pet into the database
     """
 
     form = AddPetForm()
@@ -50,10 +56,10 @@ def add_pet():
         notes = form.notes.data
 
         pet = Pet(
-            name=name, 
-            species=species, 
-            photo_url=photo_url, 
-            age=age, 
+            name=name,
+            species=species,
+            photo_url=photo_url,
+            age=age,
             notes=notes
         )
 
@@ -67,7 +73,7 @@ def add_pet():
 
 @app.route("/<int:id>", methods=["GET", "POST"])
 def edit_pet(id):
-    """ For GET request, 
+    """ For GET request,
         - Gets pet instance based on pet id
         - Shows form fields to edit a pet
         For POST request,
@@ -91,5 +97,21 @@ def edit_pet(id):
 
     else:
         return render_template("pet_edit_form.html", form=form)
+
+
+
+@app.before_first_request
+def refresh_credentials():
+    """Just once, get token and store it globally."""
+    global auth_token
+    auth_token = update_auth_token_string()
+
+def update_auth_token_string():
+    response=requests.get("https://api.petfinder.com/v2/oauth2/token",
+    params={"{CLIENT-ID}":PET_FINDER_API_KEY, "{CLIENT-SECRET}":PET_FINDER_SECRET_KEY})
+    data = response.json()
+    token = data["access_token"]
+    return token
+
 
 
